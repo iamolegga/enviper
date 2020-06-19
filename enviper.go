@@ -1,4 +1,4 @@
-// Enviper package is a helper/wrapper for http://github.com/spf13/viper with the same API.
+// Package enviper is a helper/wrapper for http://github.com/spf13/viper with the same API.
 // It makes it possible to unmarshal config to struct
 // considering environment variables.
 //

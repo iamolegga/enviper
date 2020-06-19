@@ -5,7 +5,7 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/85fb13ce6638226a3732/test_coverage)](https://codeclimate.com/github/iamolegga/enviper/test_coverage)
 [![Go Report Card](https://goreportcard.com/badge/github.com/iamolegga/enviper)](https://goreportcard.com/report/github.com/iamolegga/enviper)
 
-Enviper is a helper/wrapper package for [viper](http://github.com/spf13/viper) with the same API.
+Package enviper is a helper/wrapper for [viper](http://github.com/spf13/viper) with the same API.
 It makes it possible to unmarshal config to struct considering environment variables.
 
 ## Problem
