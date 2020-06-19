@@ -34,9 +34,25 @@ func (s *UnmarshalSuite) SetupTest() {
 func (s *UnmarshalSuite) TearDownTest()  {}
 func (s *UnmarshalSuite) TearDownSuite() {}
 
-func (s *UnmarshalSuite) TestThrowsError() {
+func (s *UnmarshalSuite) TestNotThrowsErrorWhenNoConfig() {
 	var c Config
 	e := enviper.New(viper.New())
+	s.Nil(e.Unmarshal(&c))
+	s.NotNil(c)
+}
+
+func (s *UnmarshalSuite) TestThrowsErrorWhenBrokenConfig() {
+	var c Config
+	v := viper.New()
+
+	cwd, _ := os.Getwd()
+	p := path.Join(cwd, "test_config.yaml")
+	ioutil.WriteFile(p, []byte("qwerty"), 0777)
+	defer os.Remove(p)
+
+	e := enviper.New(v)
+	e.AddConfigPath(cwd)
+	e.SetConfigName("test_config")
 	s.NotNil(e.Unmarshal(&c))
 }
 

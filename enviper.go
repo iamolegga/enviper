@@ -48,7 +48,12 @@ func New(v *viper.Viper) *Enviper {
 // The difference between enviper and viper is in automatic overriding data from file by data from env variables
 func (e *Enviper) Unmarshal(rawVal interface{}) error {
 	if err := e.Viper.ReadInConfig(); err != nil {
-		return err
+		switch err.(type) {
+		case viper.ConfigFileNotFoundError:
+			// 	do nothing
+		default:
+			return err
+		}
 	}
 	e.readEnvs(rawVal)
 	return e.Viper.Unmarshal(rawVal)
