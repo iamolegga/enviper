@@ -1,4 +1,6 @@
-//  
+// Enviper package is a helper/wrapper for http://github.com/spf13/viper with the same API.
+// It makes it possible to unmarshal config to struct
+// considering environment variables.
 //
 // Problem
 //
@@ -10,9 +12,10 @@
 //
 // Solution
 //
-// Enviper is a helper/wrapper package for http://github.com/spf13/viper with the same API.
-// It makes it possible to unmarshal config to struct
-// considering environment variables.
+// Just wrap viper instance and use the same `Unmarshal` method as you did before:
+//
+// 	e := enviper.New(viper.New())
+// 	e.Unmarshal(&config)
 //
 // Credits
 //

@@ -145,7 +145,7 @@ func ExampleEnviper_Unmarshal() {
 		Baz bool
 	}
 	type config struct {
-		Foo string
+		Foo   string
 		Barry barry
 		Bazzy bazzy `mapstructure:",squash"`
 	}
@@ -179,7 +179,7 @@ Barry:
 		fmt.Printf("%+v\n", err)
 	}
 
-	fmt.Println(c.Foo) // file only
+	fmt.Println(c.Foo)       // file only
 	fmt.Println(c.Barry.Bar) // file & env, take env
 	fmt.Println(c.Bazzy.Baz) // env only
 	// Output:

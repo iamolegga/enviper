@@ -5,6 +5,9 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/85fb13ce6638226a3732/test_coverage)](https://codeclimate.com/github/iamolegga/enviper/test_coverage)
 [![Go Report Card](https://goreportcard.com/badge/github.com/iamolegga/enviper)](https://goreportcard.com/report/github.com/iamolegga/enviper)
 
+Enviper is a helper/wrapper package for [viper](http://github.com/spf13/viper) with the same API.
+It makes it possible to unmarshal config to struct considering environment variables.
+
 ## Problem
 
 [Viper](https://github.com/spf13/viper) package doesn't consider environment variables while unmarshaling.
@@ -12,8 +15,12 @@ Please, see: [188](https://github.com/spf13/viper/issues/188) and [761](https://
 
 ## Solution
 
-Enviper is a helper/wrapper package for [viper](http://github.com/spf13/viper) with the same API.
-It makes it possible to unmarshal config to struct considering environment variables.
+Just wrap viper instance and use the same `Unmarshal` method as you did before:
+
+```go
+e := enviper.New(viper.New())
+e.Unmarshal(&config)
+```
 
 ## Example
 
