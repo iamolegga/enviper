@@ -29,8 +29,8 @@ e.Unmarshal(&config)
 package main
 
 import (
-	"github.com/spf13/viper"
 	"github.com/iamolegga/enviper"
+	"github.com/spf13/viper"
 )
 
 type barry struct {
@@ -44,6 +44,22 @@ type config struct {
     Barry barry
     Bazzy bazzy `mapstructure:",squash"`
 }
+
+// For example this kind of structure can be unmarshaled with next yaml:
+//  Foo: foo
+//  Barry:
+//    bar: 42
+//  Baz: true
+//
+// And then it could be overriden by next env variables:
+//  FOO=foo
+//  BARRY_BAR=42
+//  BAZ=true
+//
+// Or with prefix:
+//  MYAPP_FOO=foo
+//  MYAPP_BARRY_BAR=42
+//  MYAPP_BAZ=true
 
 func main() {    
     var c config
