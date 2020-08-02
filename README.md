@@ -42,6 +42,7 @@ type bazzy struct {
 type config struct {
     Foo string
     Barry barry
+    Barries map[string]barry
     Bazzy bazzy `mapstructure:",squash"`
 }
 
@@ -50,16 +51,23 @@ type config struct {
 //  Barry:
 //    bar: 42
 //  Baz: true
+//  Barries: 
+//    key1:
+//      Bar: 255
+//    key2:
+//      Bar: 256
 //
 // And then it could be overriden by next env variables:
 //  FOO=foo
 //  BARRY_BAR=42
 //  BAZ=true
+//  BARRIES_KEY1_BAR=42
 //
 // Or with prefix:
 //  MYAPP_FOO=foo
 //  MYAPP_BARRY_BAR=42
 //  MYAPP_BAZ=true
+//  MYAPP_BARRIES_KEY1_BAR=42
 
 func main() {    
     var c config

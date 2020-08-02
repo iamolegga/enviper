@@ -55,6 +55,9 @@ func (e *Enviper) Unmarshal(rawVal interface{}) error {
 			return err
 		}
 	}
+	// We need to unmarshal before the env binding to make sure that keys of maps are bound just like the struct fields
+	// We silence errors here because we'll unmarshal a second time
+	_ = e.Viper.Unmarshal(rawVal)
 	e.readEnvs(rawVal)
 	return e.Viper.Unmarshal(rawVal)
 }
@@ -84,6 +87,13 @@ func (e *Enviper) bindEnvs(in interface{}, prev ...string) {
 		switch fv.Kind() {
 		case reflect.Struct:
 			e.bindEnvs(fv.Interface(), append(prev, tv)...)
+		case reflect.Map:
+			iter := fv.MapRange()
+			for iter.Next() {
+				if key, ok := iter.Key().Interface().(string); ok {
+					e.bindEnvs(iter.Value().Interface(), append(prev, tv, key)...)
+				}
+			}
 		default:
 			env := strings.Join(append(prev, tv), ".")
 			// Viper.BindEnv will never return error
