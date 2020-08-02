@@ -1,4 +1,9 @@
 Foo: foo
 bar:
   baz: 1
+QuxMap:
+  key1:
+    Quuux: false
+  key2:
+    Quuux: false
 Quuux: true

@@ -82,6 +82,8 @@ func (s *UnmarshalSuite) TestWithEnvs() {
 	s.Equal("fooooo", c.Foo)
 	s.Equal(2, c.Bar.BAZ)
 	s.Equal(false, c.QUX.Quuux)
+	s.Equal(true, c.QuxMap["key1"].Quuux)
+	s.Equal(false, c.QuxMap["key2"].Quuux)
 
 	s.tearDownEnvConfig()
 }
@@ -139,6 +141,9 @@ type Config struct {
 	Bar struct {
 		BAZ int `mapstructure:"baz"`
 	} `mapstructure:"bar"`
+	QuxMap map[string]struct {
+		Quuux bool
+	}
 	QUX `mapstructure:",squash"`
 }
 
