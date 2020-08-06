@@ -1,6 +1,6 @@
 # enviper
 
-[![PkgGoDev](https://pkg.go.dev/badge/mod/github.com/iamolegga/enviper)](https://pkg.go.dev/mod/github.com/iamolegga/enviper)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/iamolegga/enviper)](https://pkg.go.dev/github.com/iamolegga/enviper)
 [![Build Status](https://circleci.com/gh/iamolegga/enviper.svg?style=svg)](https://circleci.com/gh/iamolegga/enviper)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/85fb13ce6638226a3732/test_coverage)](https://codeclimate.com/github/iamolegga/enviper/test_coverage)
 [![Maintainability](https://api.codeclimate.com/v1/badges/85fb13ce6638226a3732/maintainability)](https://codeclimate.com/github/iamolegga/enviper/maintainability)
