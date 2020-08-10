@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/mitchellh/mapstructure"
+	"github.com/go-viper/mapstructure/v2"
 
 	"github.com/spf13/viper"
 )
@@ -75,7 +75,8 @@ func (e *Enviper) bindEnvs(in interface{}, prev ...string) {
 		ifv = ifv.Elem()
 	}
 
-	switch ifv.Kind() {
+	fieldKind := ifv.Kind()
+	switch fieldKind {
 	case reflect.Struct:
 		for i := 0; i < ifv.NumField(); i++ {
 			fv := ifv.Field(i)
@@ -120,9 +121,13 @@ func (e *Enviper) bindEnvs(in interface{}, prev ...string) {
 			}
 		}
 	default:
-		env := strings.Join(prev, ".")
+		key := strings.Join(prev, ".")
 		// Viper.BindEnv will never return error
-		// because env is always non empty string
-		_ = e.Viper.BindEnv(env)
+		// because key is always non empty string
+		if fieldKind != reflect.Slice {
+			_ = e.Viper.BindEnv(key)
+		} else {
+			_ = e.Viper.BindEnvSliceValue(key)
+		}
 	}
 }
