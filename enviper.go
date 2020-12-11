@@ -74,6 +74,9 @@ func (e *Enviper) bindEnvs(in interface{}, prev ...string) {
 	}
 	for i := 0; i < ifv.NumField(); i++ {
 		fv := ifv.Field(i)
+		if fv.Kind() == reflect.Ptr {
+			fv = fv.Elem()
+		}
 		t := ifv.Type().Field(i)
 		tv, ok := t.Tag.Lookup("mapstructure")
 		if ok {
