@@ -1,4 +1,6 @@
 Foo: foo
+FooPtr:
+  Value: testptr1
 bar:
   baz: 1
 QuxMap:
@@ -7,3 +9,5 @@ QuxMap:
   key2:
     Quuux: false
 Quuux: true
+quuux_ptr:
+  Value: testptr2

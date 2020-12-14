@@ -39,11 +39,15 @@ type barry struct {
 type bazzy struct {
     Baz bool
 }
+type quxxy struct {
+	Qux string
+}
 type config struct {
-    Foo string
-    Barry barry
-    Barries map[string]barry
-    Bazzy bazzy `mapstructure:",squash"`
+    Foo      string
+    Barry    barry
+    Barries  map[string]barry
+    Bazzy    bazzy `mapstructure:",squash"`
+    Quxxy    *quxxy
 }
 
 // For example this kind of structure can be unmarshaled with next yaml:
@@ -56,18 +60,22 @@ type config struct {
 //      Bar: 255
 //    key2:
 //      Bar: 256
+//  Quxxy:
+//    Qux: "lorem"
 //
 // And then it could be overriden by next env variables:
 //  FOO=foo
 //  BARRY_BAR=42
 //  BAZ=true
 //  BARRIES_KEY1_BAR=42
+//  QUXXY_QUX=ipsum
 //
 // Or with prefix:
 //  MYAPP_FOO=foo
 //  MYAPP_BARRY_BAR=42
 //  MYAPP_BAZ=true
 //  MYAPP_BARRIES_KEY1_BAR=42
+//  MYAPP_QUXXY_QUX=ipsum
 
 func main() {    
     var c config
