@@ -46,7 +46,7 @@ func New(v *viper.Viper) *Enviper {
 
 // Unmarshal unmarshals the config into a Struct just like viper does.
 // The difference between enviper and viper is in automatic overriding data from file by data from env variables
-func (e *Enviper) Unmarshal(rawVal interface{}) error {
+func (e *Enviper) Unmarshal(rawVal interface{}, opts ...viper.DecoderConfigOption) error {
 	if err := e.Viper.ReadInConfig(); err != nil {
 		switch err.(type) {
 		case viper.ConfigFileNotFoundError:
@@ -57,9 +57,9 @@ func (e *Enviper) Unmarshal(rawVal interface{}) error {
 	}
 	// We need to unmarshal before the env binding to make sure that keys of maps are bound just like the struct fields
 	// We silence errors here because we'll unmarshal a second time
-	_ = e.Viper.Unmarshal(rawVal)
+	_ = e.Viper.Unmarshal(rawVal, opts...)
 	e.readEnvs(rawVal)
-	return e.Viper.Unmarshal(rawVal)
+	return e.Viper.Unmarshal(rawVal, opts...)
 }
 
 func (e *Enviper) readEnvs(rawVal interface{}) {
