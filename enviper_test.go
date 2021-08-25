@@ -9,11 +9,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/iamolegga/enviper"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-
-	"github.com/iamolegga/enviper"
 )
 
 func TestUnmarshal(t *testing.T) {
@@ -26,42 +25,56 @@ type UnmarshalSuite struct {
 	env map[string]string
 }
 
-func (s *UnmarshalSuite) SetupSuite() {}
+func (s *UnmarshalSuite) SetupSuite() {
+	s.loadEnvVars()
+}
 func (s *UnmarshalSuite) SetupTest() {
 	s.v = viper.New()
-	s.setupFileConfig()
 }
 func (s *UnmarshalSuite) TearDownTest()  {}
 func (s *UnmarshalSuite) TearDownSuite() {}
 
-func (s *UnmarshalSuite) TestNotThrowsErrorWhenNoConfig() {
-	var c Config
-	e := enviper.New(viper.New())
-	s.Nil(e.Unmarshal(&c))
-	s.NotNil(c)
-}
-
 func (s *UnmarshalSuite) TestThrowsErrorWhenBrokenConfig() {
-	var c Config
-	v := viper.New()
-
 	cwd, _ := os.Getwd()
 	p := path.Join(cwd, "test_config.yaml")
 	ioutil.WriteFile(p, []byte("qwerty"), 0777)
 	defer os.Remove(p)
 
-	e := enviper.New(v)
+	var c Config
+	e := enviper.New(s.v)
 	e.AddConfigPath(cwd)
 	e.SetConfigName("test_config")
 	s.NotNil(e.Unmarshal(&c))
 }
 
-func (s *UnmarshalSuite) TestWithoutEnvs() {
+func (s *UnmarshalSuite) TestOnlyEnvs() {
+	s.setupEnvConfig()
+	defer s.tearDownEnvConfig()
+
 	var c Config
 	e := enviper.New(s.v)
-	if err := e.Unmarshal(&c); err != nil {
-		s.T().Error(err)
-	}
+	e.SetEnvPrefix("PREF")
+	s.Nil(e.Unmarshal(&c))
+
+	s.Equal(Config{
+		Foo: "fooooo",
+		Bar: struct {
+			BAZ int `mapstructure:"baz"`
+		}{2},
+		QuxMap: map[string]struct{ Quuux bool }{"key1": {true}},
+		QUX: QUX{
+			Quuux:         false,
+			QuuuxPtrUnset: &PtrTest{Value: "testptr3"},
+		},
+	}, c)
+}
+
+func (s *UnmarshalSuite) TestOnlyConfig() {
+	s.setupFileConfig()
+
+	var c Config
+	e := enviper.New(s.v)
+	s.Nil(e.Unmarshal(&c))
 
 	s.Equal("foo", c.Foo)
 	s.Equal(1, c.Bar.BAZ)
@@ -70,16 +83,15 @@ func (s *UnmarshalSuite) TestWithoutEnvs() {
 	s.Equal("testptr2", c.QUX.QuuuxPtr.Value)
 }
 
-func (s *UnmarshalSuite) TestWithEnvs() {
+func (s *UnmarshalSuite) TestConfigWithEnvs() {
+	s.setupFileConfig()
 	s.setupEnvConfig()
+	defer s.tearDownEnvConfig()
 
 	var c Config
 	e := enviper.New(s.v)
 	e.SetEnvPrefix("PREF")
-
-	if err := e.Unmarshal(&c); err != nil {
-		s.T().Error(err)
-	}
+	s.Nil(e.Unmarshal(&c))
 
 	s.Equal("fooooo", c.Foo)
 	s.Equal(2, c.Bar.BAZ)
@@ -89,8 +101,6 @@ func (s *UnmarshalSuite) TestWithEnvs() {
 	s.Equal("testptr1", c.FooPtr.Value)
 	s.Equal("testptr2", c.QUX.QuuuxPtr.Value)
 	s.Equal("testptr3", c.QuuuxPtrUnset.Value)
-
-	s.tearDownEnvConfig()
 }
 
 func (s *UnmarshalSuite) setupFileConfig() {
@@ -100,8 +110,6 @@ func (s *UnmarshalSuite) setupFileConfig() {
 }
 
 func (s *UnmarshalSuite) setupEnvConfig() {
-	s.loadEnvVars()
-
 	for k, v := range s.env {
 		if err := os.Setenv(k, v); err != nil {
 			s.T().Error(err)
