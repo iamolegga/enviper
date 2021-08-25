@@ -88,6 +88,7 @@ func (s *UnmarshalSuite) TestWithEnvs() {
 	s.Equal(false, c.QuxMap["key2"].Quuux)
 	s.Equal("testptr1", c.FooPtr.Value)
 	s.Equal("testptr2", c.QUX.QuuuxPtr.Value)
+	s.Equal("testptr3", c.QuuuxPtrUnset.Value)
 
 	s.tearDownEnvConfig()
 }
@@ -141,9 +142,9 @@ func (s *UnmarshalSuite) loadEnvVars() {
 }
 
 type Config struct {
-	Foo string
+	Foo    string
 	FooPtr *PtrTest
-	Bar struct {
+	Bar    struct {
 		BAZ int `mapstructure:"baz"`
 	} `mapstructure:"bar"`
 	QuxMap map[string]struct {
@@ -153,8 +154,9 @@ type Config struct {
 }
 
 type QUX struct {
-	Quuux bool
-	QuuuxPtr *PtrTest `mapstructure:"quuux_ptr"`
+	Quuux         bool
+	QuuuxPtr      *PtrTest `mapstructure:"quuux_ptr"`
+	QuuuxPtrUnset *PtrTest `mapstructure:"quuux_ptr_unset"`
 }
 
 type PtrTest struct {
