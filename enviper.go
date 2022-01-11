@@ -1,6 +1,7 @@
 package enviper
 
 import (
+	"github.com/mitchellh/mapstructure"
 	"reflect"
 	"strings"
 
@@ -12,16 +13,33 @@ import (
 // considering environment variables
 type Enviper struct {
 	*viper.Viper
+	tagName string
 }
 
 // New returns an initialized Enviper instance
 func New(v *viper.Viper) *Enviper {
-	return &Enviper{v}
+	return &Enviper{
+		Viper:   v,
+		tagName: defaultTagName,
+	}
+}
+
+const defaultTagName = "mapstructure"
+
+func (e *Enviper) WithTagName(customTagName string) *Enviper {
+	e.tagName = customTagName
+	return e
 }
 
 // Unmarshal unmarshals the config into a Struct just like viper does.
 // The difference between enviper and viper is in automatic overriding data from file by data from env variables
 func (e *Enviper) Unmarshal(rawVal interface{}, opts ...viper.DecoderConfigOption) error {
+	if e.tagName != defaultTagName {
+		opts = append(opts, func(c *mapstructure.DecoderConfig) {
+			c.TagName = e.tagName
+		})
+	}
+
 	if err := e.Viper.ReadInConfig(); err != nil {
 		switch err.(type) {
 		case viper.ConfigFileNotFoundError:
@@ -57,7 +75,7 @@ func (e *Enviper) bindEnvs(in interface{}, prev ...string) {
 			}
 		}
 		t := ifv.Type().Field(i)
-		tv, ok := t.Tag.Lookup("mapstructure")
+		tv, ok := t.Tag.Lookup(e.tagName)
 		if ok {
 			if tv == ",squash" {
 				e.bindEnvs(fv.Interface(), prev...)
