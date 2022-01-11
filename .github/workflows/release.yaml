@@ -1,0 +1,31 @@
+name: release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+
+      - name: Setup go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.14'
+
+      - name: install
+        run: |
+          make install
+
+      - name: publish code coverage
+        uses: paambaati/codeclimate-action@v3.0.0
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          coverageCommand: make coverage
+          coverageLocations: |
+            ${{github.workspace}}/c.out:gocov
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_REPORTER_ID }}
