@@ -19,8 +19,7 @@ type Enviper struct {
 // New returns an initialized Enviper instance
 func New(v *viper.Viper) *Enviper {
 	return &Enviper{
-		Viper:   v,
-		tagName: defaultTagName,
+		Viper: v,
 	}
 }
 
@@ -31,12 +30,19 @@ func (e *Enviper) WithTagName(customTagName string) *Enviper {
 	return e
 }
 
+func (e *Enviper) TagName() string {
+	if e.tagName == "" {
+		return defaultTagName
+	}
+	return e.tagName
+}
+
 // Unmarshal unmarshals the config into a Struct just like viper does.
 // The difference between enviper and viper is in automatic overriding data from file by data from env variables
 func (e *Enviper) Unmarshal(rawVal interface{}, opts ...viper.DecoderConfigOption) error {
-	if e.tagName != defaultTagName {
+	if e.TagName() != defaultTagName {
 		opts = append(opts, func(c *mapstructure.DecoderConfig) {
-			c.TagName = e.tagName
+			c.TagName = e.TagName()
 		})
 	}
 
@@ -75,7 +81,7 @@ func (e *Enviper) bindEnvs(in interface{}, prev ...string) {
 			}
 		}
 		t := ifv.Type().Field(i)
-		tv, ok := t.Tag.Lookup(e.tagName)
+		tv, ok := t.Tag.Lookup(e.TagName())
 		if ok {
 			if tv == ",squash" {
 				e.bindEnvs(fv.Interface(), prev...)
