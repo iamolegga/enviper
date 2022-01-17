@@ -25,11 +25,13 @@ func New(v *viper.Viper) *Enviper {
 
 const defaultTagName = "mapstructure"
 
+// WithTagName sets custom tag name to be used instead of default `mapstructure`
 func (e *Enviper) WithTagName(customTagName string) *Enviper {
 	e.tagName = customTagName
 	return e
 }
 
+// TagName returns currently used tag name (`mapstructure` by default)
 func (e *Enviper) TagName() string {
 	if e.tagName == "" {
 		return defaultTagName
