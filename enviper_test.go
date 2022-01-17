@@ -47,6 +47,18 @@ func (s *UnmarshalSuite) TestThrowsErrorWhenBrokenConfig() {
 	s.NotNil(e.Unmarshal(&c))
 }
 
+func (s *UnmarshalSuite) TestOnlyEnvsByCustomTag() {
+	s.setupEnvConfig()
+	defer s.tearDownEnvConfig()
+
+	var c Config
+	e := enviper.New(s.v).WithTagName("custom_tag")
+	e.SetEnvPrefix("PREF")
+	s.Nil(e.Unmarshal(&c))
+
+	s.Equal("imTheValueByCustomTag", c.TagTest)
+}
+
 func (s *UnmarshalSuite) TestOnlyEnvs() {
 	s.setupEnvConfig()
 	defer s.tearDownEnvConfig()
@@ -154,7 +166,8 @@ type Config struct {
 	QuxMap map[string]struct {
 		Quuux bool
 	}
-	QUX `mapstructure:",squash"`
+	QUX     `mapstructure:",squash"`
+	TagTest string `custom_tag:"TAG_TEST"`
 }
 
 type QUX struct {
