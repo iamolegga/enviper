@@ -20,12 +20,16 @@ jobs:
         run: |
           make install
 
+      - name: Set codeclimate prefix
+        run: |
+          echo "CC_PREFIX=$(go list -m)" >> $GITHUB_ENV
+
       - name: publish code coverage
         uses: paambaati/codeclimate-action@v3.0.0
-        if: ${{ github.ref == 'refs/heads/master' }}
         with:
           coverageCommand: make coverage
           coverageLocations: |
             ${{github.workspace}}/c.out:gocov
+          prefix: ${{ env.CC_PREFIX }}
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_REPORTER_ID }}
