@@ -89,6 +89,11 @@ func main() {
 }
 ```
 
+## Custom Tag Names
+
+In case you want to use custom tag name (something different from `mapstructure`), you have to set it explicitly via `WithTagName` function.
+The wrapper must know custom tag name in order to register all the env vars for viper so you can't just use `DecoderConfigOption`.
+
 ## Credits
 
 Thanks to
