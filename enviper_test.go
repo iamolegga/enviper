@@ -59,6 +59,20 @@ func (s *UnmarshalSuite) TestOnlyEnvsByCustomTag() {
 	s.Equal("imTheValueByCustomTag", c.TagTest)
 }
 
+func (s *UnmarshalSuite) TestOnlyEnvsWithTagValue() {
+	s.setupEnvConfig()
+	defer s.tearDownEnvConfig()
+
+	var c Config
+	e := enviper.New(s.v)
+	e.SetEnvPrefix("PREF")
+	s.Nil(e.Unmarshal(&c))
+
+	s.Equal("imTheValueWithOmitempty", c.TagValueWithOmitempty)
+	s.Equal("imTheValueWithCustomName", c.TagValueWithNameOmitempty)
+	s.Equal("", c.TagValueWithDash)
+}
+
 func (s *UnmarshalSuite) TestOnlyEnvs() {
 	s.setupEnvConfig()
 	defer s.tearDownEnvConfig()
@@ -166,8 +180,11 @@ type Config struct {
 	QuxMap map[string]struct {
 		Quuux bool
 	}
-	QUX     `mapstructure:",squash"`
-	TagTest string `custom_tag:"TAG_TEST"`
+	QUX                       `mapstructure:",squash"`
+	TagTest                   string `custom_tag:"TAG_TEST"`
+	TagValueWithOmitempty     string `mapstructure:",omitempty"`
+	TagValueWithNameOmitempty string `mapstructure:"tag_custom_name,omitempty"`
+	TagValueWithDash          string `mapstructure:"-"`
 }
 
 type QUX struct {
