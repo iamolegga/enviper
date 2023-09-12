@@ -85,9 +85,22 @@ func (e *Enviper) bindEnvs(in interface{}, prev ...string) {
 		t := ifv.Type().Field(i)
 		tv, ok := t.Tag.Lookup(e.TagName())
 		if ok {
-			if tv == ",squash" {
-				e.bindEnvs(fv.Interface(), prev...)
-				continue
+			if index := strings.Index(tv, ","); index != -1 {
+				if tv[:index] == "-" {
+					continue
+				}
+
+				// If "squash" is specified in the tag, we squash the field down.
+				if strings.Index(tv[index+1:], "squash") != -1 {
+					e.bindEnvs(fv.Interface(), prev...)
+					continue
+				}
+
+				tv = tv[:index]
+			}
+
+			if tv == "" {
+				tv = t.Name
 			}
 		} else {
 			tv = t.Name
