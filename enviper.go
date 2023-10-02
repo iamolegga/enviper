@@ -1,9 +1,10 @@
 package enviper
 
 import (
-	"github.com/mitchellh/mapstructure"
 	"reflect"
 	"strings"
+
+	"github.com/mitchellh/mapstructure"
 
 	"github.com/spf13/viper"
 )
@@ -73,53 +74,55 @@ func (e *Enviper) bindEnvs(in interface{}, prev ...string) {
 	if ifv.Kind() == reflect.Ptr {
 		ifv = ifv.Elem()
 	}
-	for i := 0; i < ifv.NumField(); i++ {
-		fv := ifv.Field(i)
-		if fv.Kind() == reflect.Ptr {
-			if fv.IsZero() {
-				fv = reflect.New(fv.Type().Elem()).Elem()
+
+	switch ifv.Kind() {
+	case reflect.Struct:
+		for i := 0; i < ifv.NumField(); i++ {
+			fv := ifv.Field(i)
+			if fv.Kind() == reflect.Ptr {
+				if fv.IsZero() {
+					fv = reflect.New(fv.Type().Elem()).Elem()
+				} else {
+					fv = fv.Elem()
+				}
+			}
+			t := ifv.Type().Field(i)
+			tv, ok := t.Tag.Lookup(e.TagName())
+			if ok {
+				if index := strings.Index(tv, ","); index != -1 {
+					if tv[:index] == "-" {
+						continue
+					}
+
+					// If "squash" is specified in the tag, we squash the field down.
+					if strings.Contains(tv[index+1:], "squash") {
+						e.bindEnvs(fv.Interface(), prev...)
+						continue
+					}
+
+					tv = tv[:index]
+				}
+
+				if tv == "" {
+					tv = t.Name
+				}
 			} else {
-				fv = fv.Elem()
-			}
-		}
-		t := ifv.Type().Field(i)
-		tv, ok := t.Tag.Lookup(e.TagName())
-		if ok {
-			if index := strings.Index(tv, ","); index != -1 {
-				if tv[:index] == "-" {
-					continue
-				}
-
-				// If "squash" is specified in the tag, we squash the field down.
-				if strings.Index(tv[index+1:], "squash") != -1 {
-					e.bindEnvs(fv.Interface(), prev...)
-					continue
-				}
-
-				tv = tv[:index]
-			}
-
-			if tv == "" {
 				tv = t.Name
 			}
-		} else {
-			tv = t.Name
-		}
-		switch fv.Kind() {
-		case reflect.Struct:
+
 			e.bindEnvs(fv.Interface(), append(prev, tv)...)
-		case reflect.Map:
-			iter := fv.MapRange()
-			for iter.Next() {
-				if key, ok := iter.Key().Interface().(string); ok {
-					e.bindEnvs(iter.Value().Interface(), append(prev, tv, key)...)
-				}
-			}
-		default:
-			env := strings.Join(append(prev, tv), ".")
-			// Viper.BindEnv will never return error
-			// because env is always non empty string
-			_ = e.Viper.BindEnv(env)
 		}
+	case reflect.Map:
+		iter := ifv.MapRange()
+		for iter.Next() {
+			if key, ok := iter.Key().Interface().(string); ok {
+				e.bindEnvs(iter.Value().Interface(), append(prev, key)...)
+			}
+		}
+	default:
+		env := strings.Join(prev, ".")
+		// Viper.BindEnv will never return error
+		// because env is always non empty string
+		_ = e.Viper.BindEnv(env)
 	}
 }

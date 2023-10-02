@@ -8,6 +8,9 @@ QuxMap:
     Quuux: false
   key2:
     Quuux: false
+PrimitiveMap:
+  key1: val1
+  key2: val2
 Quuux: true
 quuux_ptr:
   Value: testptr2
