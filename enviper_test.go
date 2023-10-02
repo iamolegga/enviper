@@ -91,6 +91,18 @@ func (s *UnmarshalSuite) TestOnlyEnvs() {
 	//s.Equal(true, c.QuxMap["key1"].Quuux)
 }
 
+func (s *UnmarshalSuite) TestPrimitiveMap() {
+	s.setupFileConfig()
+
+	var c Config
+	e := enviper.New(s.v)
+	s.Nil(e.Unmarshal(&c))
+
+	s.Equal("val1", c.PrimitiveMap["key1"])
+	s.Equal("val2", c.PrimitiveMap["key2"])
+	s.Equal("", c.PrimitiveMap[""])
+}
+
 func (s *UnmarshalSuite) TestOnlyConfig() {
 	s.setupFileConfig()
 
@@ -180,6 +192,8 @@ type Config struct {
 	QuxMap map[string]struct {
 		Quuux bool
 	}
+	PrimitiveMap map[string]string
+
 	QUX                       `mapstructure:",squash"`
 	TagTest                   string `custom_tag:"TAG_TEST"`
 	TagValueWithOmitempty     string `mapstructure:",omitempty"`
