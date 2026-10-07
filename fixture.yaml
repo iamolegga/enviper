@@ -14,3 +14,9 @@ PrimitiveMap:
 Quuux: true
 quuux_ptr:
   Value: testptr2
+storage:
+  s3:
+    - address: file-addr-0
+      port: 9000
+    - address: file-addr-1
+      port: 9001

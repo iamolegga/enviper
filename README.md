@@ -42,10 +42,15 @@ type bazzy struct {
 type quxxy struct {
 	Qux string
 }
+type endpoint struct {
+    Address string `mapstructure:"address"`
+    Port    int    `mapstructure:"port"`
+}
 type config struct {
     Foo      string
     Barry    barry
     Barries  map[string]barry
+    Endpoints []endpoint
     Bazzy    bazzy `mapstructure:",squash"`
     Quxxy    *quxxy
 }
@@ -60,6 +65,11 @@ type config struct {
 //      Bar: 255
 //    key2:
 //      Bar: 256
+//  Endpoints:
+//    - address: file-addr-0
+//      port: 9000
+//    - address: file-addr-1
+//      port: 9001
 //  Quxxy:
 //    Qux: "lorem"
 //
@@ -70,11 +80,19 @@ type config struct {
 //  BARRIES_KEY1_BAR=42
 //  QUXXY_QUX=ipsum
 //
+// Slice elements are referenced by their index (Endpoints[0] and [1] above),
+// each field of an element can be overridden separately:
+//  ENDPOINTS_0_ADDRESS=env-addr-0
+//  ENDPOINTS_0_PORT=9000
+//  ENDPOINTS_1_PORT=9101
+//
 // Or with prefix:
 //  MYAPP_FOO=foo
 //  MYAPP_BARRY_BAR=42
 //  MYAPP_BAZ=true
 //  MYAPP_BARRIES_KEY1_BAR=42
+//  MYAPP_ENDPOINTS_0_ADDRESS=env-addr-0
+//  MYAPP_ENDPOINTS_1_PORT=9101
 //  MYAPP_QUXXY_QUX=ipsum
 
 func main() {    
@@ -88,6 +106,10 @@ func main() {
     e.Unmarshal(&c)
 }
 ```
+
+## Slices & maps around env vars
+
+Like viper (and like the maps above), a slice of objects can only be *overridden* from env vars: the slice skeleton has to be defined in the config file, and env vars can override fields of the existing elements by index. Env vars cannot create slice elements from scratch.
 
 ## Custom Tag Names
 
