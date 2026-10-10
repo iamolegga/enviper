@@ -86,6 +86,8 @@ func (s *UnmarshalSuite) TestOnlyEnvs() {
 	s.Equal(2, c.Bar.BAZ)
 	s.Equal(false, c.QUX.Quuux)
 	s.Equal("testptr3", c.QUX.QuuuxPtrUnset.Value)
+	// env value is split by comma with viper's default decode hook
+	s.Equal([]string{"env1", "env2"}, c.PrimitiveSlice)
 
 	// TODO: known bug, that maps can not be set when there is no config file. Uncomment and fix
 	//s.Equal(true, c.QuxMap["key1"].Quuux)
@@ -115,6 +117,11 @@ func (s *UnmarshalSuite) TestOnlyConfig() {
 	s.Equal(true, c.QUX.Quuux)
 	s.Equal("testptr1", c.FooPtr.Value)
 	s.Equal("testptr2", c.QUX.QuuuxPtr.Value)
+	s.Equal([]string{"file1", "file2"}, c.PrimitiveSlice)
+	s.Require().Len(c.StructSlice, 2)
+	s.Equal(&PtrTest{Value: "ptr0"}, c.StructSlice[0].Ptr)
+	// pointer is absent in the file, so it must stay nil
+	s.Nil(c.StructSlice[1].Ptr)
 }
 
 func (s *UnmarshalSuite) TestConfigWithEnvs() {
@@ -135,6 +142,12 @@ func (s *UnmarshalSuite) TestConfigWithEnvs() {
 	s.Equal("testptr1", c.FooPtr.Value)
 	s.Equal("testptr2", c.QUX.QuuuxPtr.Value)
 	s.Equal("testptr3", c.QuuuxPtrUnset.Value)
+	// env value replaces the whole slice from the file
+	s.Equal([]string{"env1", "env2"}, c.PrimitiveSlice)
+	s.Require().Len(c.StructSlice, 2)
+	s.Equal(&PtrTest{Value: "ptr0"}, c.StructSlice[0].Ptr)
+	// pointer is absent in the file and in envs, so it must stay nil
+	s.Nil(c.StructSlice[1].Ptr)
 }
 
 func (s *UnmarshalSuite) setupFileConfig() {
@@ -192,7 +205,9 @@ type Config struct {
 	QuxMap map[string]struct {
 		Quuux bool
 	}
-	PrimitiveMap map[string]string
+	PrimitiveMap   map[string]string
+	PrimitiveSlice []string
+	StructSlice    []StructSliceItem
 
 	QUX                       `mapstructure:",squash"`
 	TagTest                   string `custom_tag:"TAG_TEST"`
@@ -209,6 +224,11 @@ type QUX struct {
 
 type PtrTest struct {
 	Value string
+}
+
+type StructSliceItem struct {
+	Value string
+	Ptr   *PtrTest
 }
 
 func TestNew(t *testing.T) {

@@ -14,3 +14,11 @@ PrimitiveMap:
 Quuux: true
 quuux_ptr:
   Value: testptr2
+PrimitiveSlice:
+  - file1
+  - file2
+StructSlice:
+  - Value: item0
+    Ptr:
+      Value: ptr0
+  - Value: item1
